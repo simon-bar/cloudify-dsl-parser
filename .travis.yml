@@ -12,16 +12,16 @@ script:
 - tox -e $TOX_ENV
 deploy:
   provider: pypi
-  server: https://testpypi.python.org/pypi
+  server: https://pypi.python.org/pypi
   on:
     branch: pypi-release
     condition: $TOX_ENV = py27
   user:
-    secure: AwmxvWDyKF0e7RmJyXuIQ0wkLX5Gay4U58qxpKXnuqrVYz64H07uOcX5ewF98qkIgu3uNFiXoxnQhrGjyrHUvo5waGHphOfIHMK2AtX1C+FhmDzKCKGi19uFCgj9c0U/nDJ8ALeW2ImZa9POvb0YTYvTCxUrZP9h6eMu8vErPl8=
+    secure: cfKhNx5vQwXiBA1dn3Ylep0dlzsPmVytxjDTxJckuWuIqM2AX1Vwn6He1Cr++1HvabvPd2tIo2TsaEFMlwhF9R57J57tMirFAt2IdHMN2mcCt+J4A1Bp9V1BpbfFpHzs3K+c+0Y+I3QxrFYVMCV/oopDNL8ehC6RCEyo/dJ5tpc=
   password:
-    secure: ZocZ/KMajS668dsyZKtCcH8+RJT90HRSfRJNND95gXgsglAexzrmkq8hm9YP2yAouMaP/MNRmYOocqmsDb1XDvKlCHUlKxzERt7eU49teyOq/xMKCDIRd3P2qVHknlffdbpn16okf9Oht3mPmzYzVSyagSctyjuJwQ3CiJ8Cj/w=
+    secure: m16MXLLITVIxTUGxFKI3ZL9SeWlL0fVvt5uAN1Jukwpns6vLVTu3XHfr8JAb2S2dU0QlNnIww6pzKPMR0AlAJ54qG245t42jW7oE5ae5rD5H27R4qhSddRB9nwWKz9kGdDUCps9+awiwR0vobJWg9nJN1rJexGX8CjwJcST/GUM=
 after_deploy:
-  - git clone https://github.com/cloudify-cosmo/travis-utils.git
-  - python travis-utils/validate_pypi.py -v || exit 1
+- git clone https://github.com/cloudify-cosmo/travis-utils.git
+- python travis-utils/validate_pypi.py -v || exit 1
 notifications:
   flowdock: 1f4ec6febcf1ac9b35ae6c1f0049471f
