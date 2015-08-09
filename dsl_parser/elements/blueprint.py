@@ -22,7 +22,8 @@ from dsl_parser.elements import (imports,
                                  node_templates,
                                  relationships,
                                  workflows,
-                                 policies)
+                                 policies,
+                                 data_types)
 from dsl_parser.framework.elements import Element
 from dsl_parser.framework.requirements import Value
 
@@ -78,6 +79,7 @@ class Blueprint(Element):
         'groups': policies.Groups,
         'workflows': workflows.Workflows,
         'outputs': misc.Outputs,
+        'data_types': data_types.DataTypes
     }
     requires = {
         node_templates.NodeTemplates: ['deployment_plugins_to_install'],

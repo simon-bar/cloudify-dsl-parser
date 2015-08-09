@@ -934,3 +934,15 @@ tosca_definitions_version: [cloudify_dsl_1_0]
     """
         self._assert_dsl_parsing_exception_error_code(
             yaml, 1, DSLParsingFormatException, dsl_parse)
+
+    def test_unkown_type_in_datatype(self):
+        yaml = self.MINIMAL_BLUEPRINT + """
+data_types:
+  pair_type:
+    properties:
+      first:
+        type: unknown-type
+      second: {}
+        """
+        self._assert_dsl_parsing_exception_error_code(
+            yaml, 1, DSLParsingFormatException)

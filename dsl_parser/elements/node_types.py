@@ -19,7 +19,8 @@ from dsl_parser import (constants,
 from dsl_parser.interfaces import interfaces_parser
 from dsl_parser.elements import (operation,
                                  properties,
-                                 types)
+                                 types,
+                                 data_types)
 from dsl_parser.framework import requirements
 from dsl_parser.framework.elements import Dict
 
@@ -34,10 +35,11 @@ class NodeType(types.Type):
     requires = {
         'self': [requirements.Value('super_type',
                                     predicate=types.derived_from_predicate,
-                                    required=False)]
+                                    required=False)],
+        data_types.DataTypes: ['data_types']
     }
 
-    def parse(self, super_type):
+    def parse(self, super_type, data_types):
         node_type = self.build_dict_result()
         if not node_type.get('derived_from'):
             node_type.pop('derived_from', None)

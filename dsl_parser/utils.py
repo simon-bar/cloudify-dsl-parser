@@ -20,6 +20,7 @@ import yaml.parser
 
 from dsl_parser import yaml_loader
 from dsl_parser import functions
+from dsl_parser import constants
 from dsl_parser.exceptions import (DSLParsingLogicException,
                                    DSLParsingFormatException)
 
@@ -110,6 +111,15 @@ def _validate_properties_types(properties, properties_schema):
                 "is '{1}', yet it was assigned with the value '{2}'"
                 .format(prop_key, prop_type, prop_val))
 
+def validate_type_fields(type, data_types):
+    for v in type.get('properties', {}).itervalues():
+        type_name = v.get('type')
+        if type_name is not None and \
+                (type_name not in data_types and
+                 type_name not in constants.PRIMITIVE_TYPES):
+            raise DSLParsingFormatException(
+                1,
+                "Illegal type name '{0}'".format(type_name))
 
 def load_yaml(raw_yaml, error_message, filename=None):
     try:

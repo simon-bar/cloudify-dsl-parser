@@ -13,7 +13,7 @@
 #    * See the License for the specific language governing permissions and
 #    * limitations under the License.
 
-from dsl_parser import exceptions
+from dsl_parser import exceptions, utils
 from dsl_parser.framework.elements import (DictElement,
                                            Element,
                                            Leaf)
@@ -32,6 +32,9 @@ class Type(Element):
             type_hierarchy = []
         type_hierarchy.append(self.name)
         return type_hierarchy
+
+    def validate(self, data_types, **kwargs):
+        utils.validate_type_fields(self.initial_value, data_types)
 
 
 class DerivedFrom(Element):
