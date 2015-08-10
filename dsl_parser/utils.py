@@ -45,10 +45,10 @@ def flatten_schema(schema):
 def merge_schema_and_instance_properties(
         instance_properties,
         schema_properties,
+        data_types,
         undefined_property_error_message,
         missing_property_error_message,
-        node_name,
-        data_types={}):
+        node_name):
     flattened_schema_props = flatten_schema(schema_properties)
 
     # validate instance properties don't
@@ -92,9 +92,9 @@ def _parse_value(
         type_name,
         property_name,
         data_types,
-        undefined_property_error_message='',
-        missing_property_error_message='',
-        node_name=''):
+        undefined_property_error_message,
+        missing_property_error_message,
+        node_name):
     if type_name is None:
         return value
     if functions.parse(value) != value:
@@ -137,34 +137,31 @@ def _parse_value(
 
 
 def parse_type_fields(fields, data_types):
-    print data_types
     result = {}
-    for k, v in fields.iteritems():
-        type_name = v.get('type')
+    for property_name, property_schema in fields.iteritems():
+        type_name = property_schema.get('type')
         if type_name is not None and (type_name not in data_types and
                  type_name not in constants.PRIMITIVE_TYPES):
             raise DSLParsingFormatException(
                 1,
                 "Illegal type name '{0}'".format(type_name))
-        val_clone = copy.deepcopy(v)
-        default_value = v.get('default')
+        val_clone = copy.deepcopy(property_schema)
+        default_value = property_schema.get('default')
         if default_value:
             undefined_property_error = 'Undefined property in default' \
                                        ' value of type {}: {}'
             missing_property_error = 'Property is missing in default' \
                                      ' value of type {}: {}'
-            print type_name
-            print default_value
             default_value = _parse_value(
                 default_value,
                 type_name,
-                k,
+                property_name,
                 data_types=data_types,
                 undefined_property_error_message=undefined_property_error,
                 missing_property_error_message=missing_property_error,
                 node_name=type_name)
             val_clone['default'] = default_value
-        result[k] = val_clone
+        result[property_name] = val_clone
     return result
 
 
