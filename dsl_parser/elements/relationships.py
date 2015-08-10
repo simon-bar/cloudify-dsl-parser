@@ -38,11 +38,10 @@ class Relationship(types.Type):
         _plugins.Plugins: [Value('plugins')],
         'self': [Value('super_type',
                        predicate=types.derived_from_predicate,
-                       required=False)],
-         data_types.DataTypes: ['data_types']
+                       required=False)]
     }
 
-    def parse(self, super_type, plugins, resource_base, data_types):
+    def parse(self, super_type, plugins, resource_base):
         relationship_type = self.build_dict_result()
         if not relationship_type.get('derived_from'):
             relationship_type.pop('derived_from', None)

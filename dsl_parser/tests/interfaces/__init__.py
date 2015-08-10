@@ -15,14 +15,15 @@
 
 from dsl_parser.framework import parser
 from dsl_parser.framework.elements import Element
-from dsl_parser.elements import misc
+from dsl_parser.elements import misc, data_types
 
 
 def validate(obj, element_cls):
     class TestElement(Element):
         schema = {
             'tosca_definitions_version': misc.ToscaDefinitionsVersion,
-            'test': element_cls
+            'test': element_cls,
+            'data_types': data_types.DataTypes
         }
     obj = {
         'tosca_definitions_version': 'cloudify_dsl_1_1',

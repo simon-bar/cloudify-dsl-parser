@@ -33,9 +33,6 @@ class Type(Element):
         type_hierarchy.append(self.name)
         return type_hierarchy
 
-    def validate(self, data_types, **kwargs):
-        utils.validate_type_fields(self.initial_value, data_types)
-
 
 class DerivedFrom(Element):
 

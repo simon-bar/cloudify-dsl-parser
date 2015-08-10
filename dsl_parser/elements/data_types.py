@@ -1,38 +1,59 @@
 from dsl_parser import constants
 from dsl_parser import exceptions
-
-from dsl_parser.elements import properties
+from dsl_parser import utils
+from dsl_parser.elements import properties_utils
 from dsl_parser.framework.elements import Element, Dict
-from dsl_parser.utils import validate_type_fields
+from dsl_parser.framework.parser import parse
+from dsl_parser.framework.requirements import Value
 
 
 class DataType(Element):
     schema = {
-        'properties': properties.Schema
+        'properties': properties_utils.UnsafeSchema
     }
 
     def parse(self):
         return self.build_dict_result()
+
 
 class DataTypes(Element):
     schema = Dict(type=DataType)
     provides = ['data_types']
 
     def parse(self):
-        return self.initial_value or {}
+        datatypes = self.build_dict_result()
 
-    def calculate_provided(self):
-        return {
-            'data_types': self.value
-        }
+        class DataTypesInternal(Element):
+            schema = {}
+            requires = {}
 
-    def validate(self):
-        datatypes = self.initial_value or {}
-        for k, v in datatypes.iteritems():
-            if k in constants.PRIMITIVE_TYPES:
+        types_internal = {}
+        for type_name, type_schema in datatypes.iteritems():
+            if type_name in constants.PRIMITIVE_TYPES:
                 raise exceptions.DSLParsingFormatException(
-                1,
-                "Illegal type name '{0}' - it is primitive type".format(k))
-            validate_type_fields(v, self.initial_value)
+                    1,
+                    "Illegal type name '{0}' - it is primitive "
+                    "type".format(type_name))
 
+            class DataTypeInternal(Element):
+                schema = {
+                    'properties': properties_utils.UnsafeSchema
+                }
+                requires = {}
 
+                def parse(self, **data_types):
+                    return utils.parse_type_fields(
+                        self.build_dict_result().get('properties', {}),
+                        data_types)
+
+            types_internal[type_name] = DataTypeInternal
+            DataTypesInternal.schema[type_name] = DataTypeInternal
+
+        for type_name, type_schema in datatypes.iteritems():
+            for prop_name, prop in type_schema.get('properties', {}).iteritems():
+                if 'type' in prop and prop['type'] in types_internal:
+                    prop_type = prop['type']
+                    types_internal[type_name].requires[
+                        types_internal[prop_type]] = [Value(prop_type)]
+
+        return parse(datatypes, DataTypesInternal)

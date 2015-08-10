@@ -13,6 +13,7 @@
 #    * See the License for the specific language governing permissions and
 #    * limitations under the License.
 
+import copy
 import contextlib
 import urllib2
 
@@ -46,7 +47,8 @@ def merge_schema_and_instance_properties(
         schema_properties,
         undefined_property_error_message,
         missing_property_error_message,
-        node_name):
+        node_name,
+        data_types={}):
     flattened_schema_props = flatten_schema(schema_properties)
 
     # validate instance properties don't
@@ -63,7 +65,7 @@ def merge_schema_and_instance_properties(
 
     merged_properties = dict(flattened_schema_props.items() +
                              instance_properties.items())
-
+    result = {}
     for key, value in merged_properties.iteritems():
         if value is None:
             ex = DSLParsingLogicException(
@@ -71,55 +73,100 @@ def merge_schema_and_instance_properties(
                 missing_property_error_message.format(node_name, key))
             ex.property = key
             raise ex
+        result[key] = _parse_value(
+            value,
+            schema_properties.get(key).get('type'),
+            key,
+            data_types,
+            undefined_property_error_message=\
+                undefined_property_error_message,
+            missing_property_error_message=\
+                missing_property_error_message,
+            node_name=node_name)
 
-    _validate_properties_types(merged_properties, schema_properties)
-
-    return merged_properties
+    return result
 
 
-def _validate_properties_types(properties, properties_schema):
-    for prop_key, prop in properties_schema.iteritems():
-        prop_type = prop.get('type')
-        if prop_type is None:
-            continue
-        prop_val = properties[prop_key]
+def _parse_value(
+        value,
+        type_name,
+        property_name,
+        data_types,
+        undefined_property_error_message='',
+        missing_property_error_message='',
+        node_name=''):
+    if type_name is None:
+        return value
+    if functions.parse(value) != value:
+        # intrinsic function - not validated at the moment
+        return value
+    if type_name == 'integer':
+        if isinstance(value, (int, long)) and not isinstance(
+                value, bool):
+            return value
+    elif type_name == 'float':
+        if isinstance(value, (int, float, long)) and not isinstance(
+                value, bool):
+            return value
+    elif type_name == 'boolean':
+        if isinstance(value, bool):
+            return value
+    elif type_name == 'string':
+        return value
+    elif type_name in data_types:
+        if isinstance(value, dict):
+            data_schema = data_types[type_name]
+            return merge_schema_and_instance_properties(
+                value,
+                data_schema,
+                data_types=data_types,
+                undefined_property_error_message=\
+                    undefined_property_error_message,
+                missing_property_error_message=\
+                    missing_property_error_message,
+                node_name=node_name)
+    else:
+        raise RuntimeError(
+            "Unexpected type defined in property schema for property '{0}'"
+            " - unknown type is '{1}'".format(property_name, type_name))
 
-        if functions.parse(prop_val) != prop_val:
-            # intrinsic function - not validated at the moment
-            continue
+    raise DSLParsingLogicException(
+        50, "Property type validation failed: Property '{0}' type "
+            "is '{1}', yet it was assigned with the value '{2}'"
+            .format(property_name, type_name, value))
 
-        if prop_type == 'integer':
-            if isinstance(prop_val, (int, long)) and not isinstance(
-                    prop_val, bool):
-                continue
-        elif prop_type == 'float':
-            if isinstance(prop_val, (int, float, long)) and not isinstance(
-                    prop_val, bool):
-                continue
-        elif prop_type == 'boolean':
-            if isinstance(prop_val, bool):
-                continue
-        elif prop_type == 'string':
-            continue
-        else:
-            raise RuntimeError(
-                "Unexpected type defined in property schema for property '{0}'"
-                " - unknown type is '{1}'".format(prop_key, prop_type))
 
-        raise DSLParsingLogicException(
-            50, "Property type validation failed: Property '{0}' type "
-                "is '{1}', yet it was assigned with the value '{2}'"
-                .format(prop_key, prop_type, prop_val))
-
-def validate_type_fields(type, data_types):
-    for v in type.get('properties', {}).itervalues():
+def parse_type_fields(fields, data_types):
+    print data_types
+    result = {}
+    for k, v in fields.iteritems():
         type_name = v.get('type')
-        if type_name is not None and \
-                (type_name not in data_types and
+        if type_name is not None and (type_name not in data_types and
                  type_name not in constants.PRIMITIVE_TYPES):
             raise DSLParsingFormatException(
                 1,
                 "Illegal type name '{0}'".format(type_name))
+        val_clone = copy.deepcopy(v)
+        default_value = v.get('default')
+        if default_value:
+            undefined_property_error = 'Undefined property in default' \
+                                       ' value of type {}: {}'
+            missing_property_error = 'Property is missing in default' \
+                                     ' value of type {}: {}'
+            print type_name
+            print default_value
+            default_value = _parse_value(
+                default_value,
+                type_name,
+                k,
+                data_types=data_types,
+                undefined_property_error_message=undefined_property_error,
+                missing_property_error_message=missing_property_error,
+                node_name=type_name)
+            val_clone['default'] = default_value
+        result[k] = val_clone
+    return result
+
 
 def load_yaml(raw_yaml, error_message, filename=None):
     try:

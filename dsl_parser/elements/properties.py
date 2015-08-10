@@ -13,38 +13,16 @@
 #    * See the License for the specific language governing permissions and
 #    * limitations under the License.
 
-from dsl_parser import exceptions
-from dsl_parser import elements
-from dsl_parser.framework.elements import (DictElement,
-                                           Element,
-                                           Leaf,
-                                           Dict)
+from dsl_parser import utils
+from dsl_parser.elements import data_types, properties_utils
+from dsl_parser.framework.requirements import Value
 
 
-class SchemaPropertyDefault(Element):
+class Schema(properties_utils.UnsafeSchema):
 
-    schema = Leaf(type=elements.PRIMITIVE_TYPES)
-
-
-class SchemaPropertyDescription(Element):
-
-    schema = Leaf(type=str)
-
-
-class SchemaPropertyType(Element):
-
-    schema = Leaf(type=str)
-
-
-class SchemaProperty(Element):
-
-    schema = {
-        'default': SchemaPropertyDefault,
-        'description': SchemaPropertyDescription,
-        'type': SchemaPropertyType,
+    requires = {
+        data_types.DataTypes: [Value('data_types')]
     }
 
-
-class Schema(DictElement):
-
-    schema = Dict(type=SchemaProperty)
+    def parse(self, data_types):
+        return utils.parse_type_fields(self.initial_value or {}, data_types)

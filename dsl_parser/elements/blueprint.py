@@ -81,6 +81,7 @@ class Blueprint(Element):
         'outputs': misc.Outputs,
         'data_types': data_types.DataTypes
     }
+
     requires = {
         node_templates.NodeTemplates: ['deployment_plugins_to_install'],
         workflows.Workflows: ['workflow_plugins_to_install']
