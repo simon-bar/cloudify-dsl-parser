@@ -1,6 +1,10 @@
 from dsl_parser.tests.abstract_test_parser import AbstractTestParser
 from dsl_parser import exceptions
-from dsl_parser.exceptions import DSLParsingFormatException, DSLParsingLogicException
+from dsl_parser.exceptions import (
+    DSLParsingFormatException,
+    DSLParsingLogicException
+)
+from dsl_parser.tasks import prepare_deployment_plan
 
 
 class TestDataTypes(AbstractTestParser):
@@ -89,3 +93,74 @@ data_types:
         """
         self._assert_dsl_parsing_exception_error_code(
             yaml, 1, DSLParsingFormatException)
+
+    def test_nested_validation(self):
+        yaml = """
+node_templates:
+  n_template:
+    type: n_type
+    properties:
+      n_pair:
+        second:
+          first: 4
+          second: invalid_type_value
+node_types:
+  n_type:
+    properties:
+      n_pair:
+        type: pair_of_pairs_type
+data_types:
+  pair_type:
+    properties:
+      first: {}
+      second:
+        type: integer
+  pair_of_pairs_type:
+    properties:
+      first:
+        type: pair_type
+        default:
+            first: 1
+            second: 2
+      second:
+        type: pair_type
+"""
+        self._assert_dsl_parsing_exception_error_code(yaml, 50)
+
+    def test_nested_defaults(self):
+        yaml = """
+node_types:
+    vm_type:
+        properties:
+            agent:
+                type: agent
+            agent_name:
+                type: string
+node_templates:
+    vm:
+        type: vm_type
+        properties:
+            agent: {}
+            agent_name: { get_property: [SELF, agent, connection, username] }
+data_types:
+    agent_connection:
+        properties:
+            username:
+                type: string
+                default: ubuntu
+            key:
+                type: string
+                default: ~/.ssh/id_rsa
+
+    agent:
+        properties:
+            connection:
+                type: agent_connection
+                default: {}
+            basedir:
+                type: string
+                default: /home/
+"""
+        parsed = prepare_deployment_plan(self.parse(yaml))
+        vm = self.get_node_by_name(parsed, 'vm')
+        self.assertEqual('ubuntu', vm['properties']['agent_name'])
