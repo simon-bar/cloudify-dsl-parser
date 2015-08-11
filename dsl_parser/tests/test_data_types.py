@@ -2,6 +2,7 @@ from dsl_parser.tests.abstract_test_parser import AbstractTestParser
 from dsl_parser import exceptions
 from dsl_parser.exceptions import DSLParsingFormatException, DSLParsingLogicException
 
+
 class TestDataTypes(AbstractTestParser):
     def test_unkown_type(self):
         yaml = self.MINIMAL_BLUEPRINT + """
@@ -16,7 +17,7 @@ data_types:
             yaml, 1, DSLParsingFormatException)
 
     def test_simple(self):
-        yaml = self.MINIMAL_BLUEPRINT +  """
+        yaml = self.MINIMAL_BLUEPRINT + """
 data_types:
   pair_type:
     properties:
@@ -26,7 +27,7 @@ data_types:
         self.parse_1_2(yaml)
 
     def test_definitions(self):
-        yaml = self.MINIMAL_BLUEPRINT +  """
+        yaml = self.MINIMAL_BLUEPRINT + """
 data_types:
   pair_type:
     properties:
@@ -54,11 +55,10 @@ data_types:
                     head: 1
 """
         self._assert_dsl_parsing_exception_error_code(
-            yaml,  exceptions.ERROR_CODE_CYCLE, DSLParsingLogicException)
-
+            yaml, exceptions.ERROR_CODE_CYCLE, DSLParsingLogicException)
 
     def test_definitions_with_default_error(self):
-        yaml = self.MINIMAL_BLUEPRINT +  """
+        yaml = self.MINIMAL_BLUEPRINT + """
 data_types:
   pair_type:
     properties:
@@ -77,3 +77,15 @@ data_types:
 """
         self._assert_dsl_parsing_exception_error_code(
             yaml, 106, DSLParsingLogicException)
+
+    def test_unkown_type_in_datatype(self):
+        yaml = self.MINIMAL_BLUEPRINT + """
+data_types:
+  pair_type:
+    properties:
+      first:
+        type: unknown-type
+      second: {}
+        """
+        self._assert_dsl_parsing_exception_error_code(
+            yaml, 1, DSLParsingFormatException)

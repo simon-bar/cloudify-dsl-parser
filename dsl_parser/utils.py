@@ -74,14 +74,12 @@ def merge_schema_and_instance_properties(
             ex.property = key
             raise ex
         result[key] = _parse_value(
-            value,
-            schema_properties.get(key).get('type'),
-            key,
-            data_types,
-            undefined_property_error_message=\
-                undefined_property_error_message,
-            missing_property_error_message=\
-                missing_property_error_message,
+            value=value,
+            type_name=schema_properties.get(key).get('type'),
+            property_name=key,
+            data_types=data_types,
+            undefined_property_error_message=undefined_property_error_message,
+            missing_property_error_message=missing_property_error_message,
             node_name=node_name)
 
     return result
@@ -115,15 +113,14 @@ def _parse_value(
         return value
     elif type_name in data_types:
         if isinstance(value, dict):
-            data_schema = data_types[type_name]
+            data_schema = data_types[type_name]['properties']
+            undef_msg = undefined_property_error_message
             return merge_schema_and_instance_properties(
                 value,
                 data_schema,
                 data_types=data_types,
-                undefined_property_error_message=\
-                    undefined_property_error_message,
-                missing_property_error_message=\
-                    missing_property_error_message,
+                undefined_property_error_message=undef_msg,
+                missing_property_error_message=missing_property_error_message,
                 node_name=node_name)
     else:
         raise RuntimeError(
@@ -140,8 +137,9 @@ def parse_type_fields(fields, data_types):
     result = {}
     for property_name, property_schema in fields.iteritems():
         type_name = property_schema.get('type')
-        if type_name is not None and (type_name not in data_types and
-                 type_name not in constants.PRIMITIVE_TYPES):
+        if type_name is not None and \
+                type_name not in data_types and \
+                type_name not in constants.PRIMITIVE_TYPES:
             raise DSLParsingFormatException(
                 1,
                 "Illegal type name '{0}'".format(type_name))
@@ -153,9 +151,9 @@ def parse_type_fields(fields, data_types):
             missing_property_error = 'Property is missing in default' \
                                      ' value of type {}: {}'
             default_value = _parse_value(
-                default_value,
-                type_name,
-                property_name,
+                value=default_value,
+                type_name=type_name,
+                property_name=property_name,
                 data_types=data_types,
                 undefined_property_error_message=undefined_property_error,
                 missing_property_error_message=missing_property_error,

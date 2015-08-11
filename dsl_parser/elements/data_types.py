@@ -13,7 +13,10 @@ class DataType(Element):
     }
 
     def parse(self):
-        return self.build_dict_result()
+        result = self.build_dict_result()
+        if 'properties' not in result:
+            result['properties'] = {}
+        return result
 
 
 class DataTypes(Element):
@@ -42,15 +45,17 @@ class DataTypes(Element):
                 requires = {}
 
                 def parse(self, **data_types):
-                    return utils.parse_type_fields(
-                        self.build_dict_result().get('properties', {}),
-                        data_types)
+                    return {
+                        'properties': utils.parse_type_fields(
+                            self.build_dict_result()['properties'],
+                            data_types)
+                    }
 
             types_internal[type_name] = DataTypeInternal
             DataTypesInternal.schema[type_name] = DataTypeInternal
 
         for type_name, type_schema in datatypes.iteritems():
-            for prop_name, prop in type_schema.get('properties', {}).iteritems():
+            for prop_name, prop in type_schema['properties'].iteritems():
                 if 'type' in prop and prop['type'] in types_internal:
                     prop_type = prop['type']
                     types_internal[type_name].requires[
