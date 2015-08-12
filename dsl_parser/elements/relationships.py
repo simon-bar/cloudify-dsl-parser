@@ -19,8 +19,7 @@ from dsl_parser.interfaces import interfaces_parser
 from dsl_parser.elements import (properties,
                                  operation,
                                  plugins as _plugins,
-                                 types,
-                                 data_types)
+                                 types)
 from dsl_parser.framework.requirements import Value, Requirement
 from dsl_parser.framework.elements import Dict
 

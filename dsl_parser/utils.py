@@ -149,10 +149,10 @@ def _parse_value(
         50, "Property type validation failed in '{0}': property "
             "'{1}' type is '{2}', yet it was assigned with the "
             "value '{3}'".format(
-                    node_name,
-                    _property_description(path, property_name),
-                    type_name,
-                    value))
+                node_name,
+                _property_description(path, property_name),
+                type_name,
+                value))
 
 
 def parse_type_fields(fields, data_types):

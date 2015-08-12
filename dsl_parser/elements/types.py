@@ -13,7 +13,7 @@
 #    * See the License for the specific language governing permissions and
 #    * limitations under the License.
 
-from dsl_parser import exceptions, utils
+from dsl_parser import exceptions
 from dsl_parser.framework.elements import (DictElement,
                                            Element,
                                            Leaf)

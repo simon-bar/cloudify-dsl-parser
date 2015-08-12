@@ -106,8 +106,8 @@ class DataTypes(Element):
                                            types_internal,
                                            err_msg)
             for prop_name, prop in type_schema['properties'].iteritems():
-                if 'type' in prop and \
-                                prop['type'] not in constants.PRIMITIVE_TYPES:
+                if ('type' in prop
+                        and prop['type'] not in constants.PRIMITIVE_TYPES):
                     err_msg = 'Property {0} in type {1} ' \
                               'has unkown type {2}'.format(prop_name,
                                                            type_name,

@@ -129,8 +129,8 @@ data_types:
     pair_type:
         properties:
             first: {}
-        second:
-            type: integer
+            second:
+                type: integer
     pair_of_pairs_type:
         properties:
             first:
@@ -180,39 +180,6 @@ data_types:
         parsed = prepare_deployment_plan(self.parse(yaml))
         vm = self.get_node_by_name(parsed, 'vm')
         self.assertEqual('ubuntu', vm['properties']['agent_name'])
-
-    def test_nested_validation(self):
-        yaml = """
-node_templates:
-    n_template:
-        type: n_type
-        properties:
-            n_pair:
-                second:
-                    first: 4
-                    second: invalid_type_value
-node_types:
-    n_type:
-        properties:
-            n_pair:
-                type: pair_of_pairs_type
-data_types:
-    pair_type:
-        properties:
-            first: {}
-            second:
-                type: integer
-    pair_of_pairs_type:
-        properties:
-            first:
-                type: pair_type
-                default:
-                    first: 1
-                    second: 2
-            second:
-                type: pair_type
-"""
-        self._assert_dsl_parsing_exception_error_code(yaml, 50)
 
     def test_derives(self):
         yaml = """
