@@ -12,11 +12,11 @@ class TestDataTypes(AbstractTestParser):
     def test_unknown_type(self):
         yaml = self.MINIMAL_BLUEPRINT + """
 data_types:
-  pair_type:
-    properties:
-      first:
-        type: unknown-type
-      second: {}
+    pair_type:
+        properties:
+            first:
+                type: unknown-type
+            second: {}
 """
         self._assert_dsl_parsing_exception_error_code(
             yaml, 39, DSLParsingElementMatchException)
@@ -24,26 +24,26 @@ data_types:
     def test_simple(self):
         yaml = self.MINIMAL_BLUEPRINT + """
 data_types:
-  pair_type:
-    properties:
-      first: {}
-      second: {}
+    pair_type:
+        properties:
+            first: {}
+            second: {}
 """
         self.parse_1_2(yaml)
 
     def test_definitions(self):
         yaml = self.MINIMAL_BLUEPRINT + """
 data_types:
-  pair_type:
-    properties:
-      first: {}
-      second: {}
-  pair_of_pairs_type:
-    properties:
-      first:
-        type: pair_type
-      second:
-        type: pair_type
+    pair_type:
+        properties:
+            first: {}
+            second: {}
+    pair_of_pairs_type:
+        properties:
+            first:
+                type: pair_type
+            second:
+                type: pair_type
 """
         self.parse_1_2(yaml)
 
@@ -65,20 +65,20 @@ data_types:
     def test_definitions_with_default_error(self):
         yaml = self.MINIMAL_BLUEPRINT + """
 data_types:
-  pair_type:
-    properties:
-      first: {}
-      second: {}
-  pair_of_pairs_type:
-    properties:
-      first:
-        type: pair_type
-        default:
-            first: 1
-            second: 2
-            third: 4
-      second:
-        type: pair_type
+    pair_type:
+        properties:
+            first: {}
+            second: {}
+    pair_of_pairs_type:
+        properties:
+            first:
+                type: pair_type
+                default:
+                    first: 1
+                    second: 2
+                    third: 4
+            second:
+                type: pair_type
 """
         self._assert_dsl_parsing_exception_error_code(
             yaml, 106, DSLParsingLogicException)
@@ -86,45 +86,45 @@ data_types:
     def test_unknown_type_in_datatype(self):
         yaml = self.MINIMAL_BLUEPRINT + """
 data_types:
-  pair_type:
-    properties:
-      first:
-        type: unknown-type
-      second: {}
-        """
+    pair_type:
+        properties:
+            first:
+                type: unknown-type
+            second: {}
+"""
         self._assert_dsl_parsing_exception_error_code(
             yaml, 39, DSLParsingElementMatchException)
 
     def test_nested_validation(self):
         yaml = """
 node_templates:
-  n_template:
-    type: n_type
-    properties:
-      n_pair:
-        second:
-          first: 4
-          second: invalid_type_value
+    n_template:
+        type: n_type
+        properties:
+            n_pair:
+                second:
+                    first: 4
+                    second: invalid_type_value
 node_types:
-  n_type:
-    properties:
-      n_pair:
-        type: pair_of_pairs_type
+    n_type:
+        properties:
+            n_pair:
+                type: pair_of_pairs_type
 data_types:
-  pair_type:
-    properties:
-      first: {}
-      second:
-        type: integer
-  pair_of_pairs_type:
-    properties:
-      first:
-        type: pair_type
-        default:
-            first: 1
-            second: 2
-      second:
-        type: pair_type
+    pair_type:
+        properties:
+            first: {}
+        second:
+            type: integer
+    pair_of_pairs_type:
+        properties:
+            first:
+                type: pair_type
+                default:
+                    first: 1
+                    second: 2
+            second:
+                type: pair_type
 """
         self._assert_dsl_parsing_exception_error_code(yaml, 50)
 
@@ -169,33 +169,33 @@ data_types:
     def test_nested_validation(self):
         yaml = """
 node_templates:
-  n_template:
-    type: n_type
-    properties:
-      n_pair:
-        second:
-          first: 4
-          second: invalid_type_value
+    n_template:
+        type: n_type
+        properties:
+            n_pair:
+                second:
+                    first: 4
+                    second: invalid_type_value
 node_types:
-  n_type:
-    properties:
-      n_pair:
-        type: pair_of_pairs_type
+    n_type:
+        properties:
+            n_pair:
+                type: pair_of_pairs_type
 data_types:
-  pair_type:
-    properties:
-      first: {}
-      second:
-        type: integer
-  pair_of_pairs_type:
-    properties:
-      first:
-        type: pair_type
-        default:
-            first: 1
-            second: 2
-      second:
-        type: pair_type
+    pair_type:
+        properties:
+            first: {}
+            second:
+                type: integer
+    pair_of_pairs_type:
+        properties:
+            first:
+                type: pair_type
+                default:
+                    first: 1
+                    second: 2
+            second:
+                type: pair_type
 """
         self._assert_dsl_parsing_exception_error_code(yaml, 50)
 
