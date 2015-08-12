@@ -244,3 +244,36 @@ data_types:
         vm = self.get_node_by_name(parsed, 'vm')
         self.assertEqual('ubuntu', vm['properties']['agent_name'])
         self.assertEqual('/home/ubuntu/id_rsa', vm['properties']['agent_key'])
+
+    def test_nested_type_error(self):
+        yaml = """
+node_templates:
+    node:
+        type: node_type
+        properties:
+            a:
+                b:
+                    c:
+                        d: should_be_int
+node_types:
+    node_type:
+        properties:
+            a:
+                type: a
+data_types:
+    a:
+        properties:
+            b:
+                type: b
+    b:
+        properties:
+            c:
+                type: c
+    c:
+        properties:
+            d:
+                type: integer
+
+"""
+        ex = self._assert_dsl_parsing_exception_error_code(yaml, 50)
+        self.assertIn('a.b.c.d', ex.message)

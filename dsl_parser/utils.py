@@ -42,13 +42,20 @@ def flatten_schema(schema):
     return flattened_schema_props
 
 
+def _property_description(path, name):
+    return '{0}.{1}'.format('.'.join(path), name)
+
+
 def merge_schema_and_instance_properties(
         instance_properties,
         schema_properties,
         data_types,
         undefined_property_error_message,
         missing_property_error_message,
-        node_name):
+        node_name,
+        path=None):
+    if path is None:
+        path = []
     flattened_schema_props = flatten_schema(schema_properties)
 
     # validate instance properties don't
@@ -59,7 +66,9 @@ def merge_schema_and_instance_properties(
         if key not in flattened_schema_props:
             ex = DSLParsingLogicException(
                 106,
-                undefined_property_error_message.format(node_name, key))
+                undefined_property_error_message.format(
+                    node_name,
+                    _property_description(path, key)))
             ex.property = key
             raise ex
 
@@ -70,7 +79,9 @@ def merge_schema_and_instance_properties(
         if value is None:
             ex = DSLParsingLogicException(
                 107,
-                missing_property_error_message.format(node_name, key))
+                missing_property_error_message.format(
+                    node_name,
+                    _property_description(path, key)))
             ex.property = key
             raise ex
         result[key] = _parse_value(
@@ -80,7 +91,8 @@ def merge_schema_and_instance_properties(
             data_types=data_types,
             undefined_property_error_message=undefined_property_error_message,
             missing_property_error_message=missing_property_error_message,
-            node_name=node_name)
+            node_name=node_name,
+            path=path)
 
     return result
 
@@ -92,7 +104,8 @@ def _parse_value(
         data_types,
         undefined_property_error_message,
         missing_property_error_message,
-        node_name):
+        node_name,
+        path):
     if type_name is None:
         return value
     if functions.parse(value) != value:
@@ -115,22 +128,31 @@ def _parse_value(
         if isinstance(value, dict):
             data_schema = data_types[type_name]['properties']
             undef_msg = undefined_property_error_message
+            path = copy.copy(path)
+            path.append(property_name)
             return merge_schema_and_instance_properties(
                 value,
                 data_schema,
                 data_types=data_types,
                 undefined_property_error_message=undef_msg,
                 missing_property_error_message=missing_property_error_message,
-                node_name=node_name)
+                node_name=node_name,
+                path=path)
     else:
         raise RuntimeError(
             "Unexpected type defined in property schema for property '{0}'"
-            " - unknown type is '{1}'".format(property_name, type_name))
+            " - unknown type is '{1}'".format(
+                _property_description(path, property_name),
+                type_name))
 
     raise DSLParsingLogicException(
-        50, "Property type validation failed: Property '{0}' type "
-            "is '{1}', yet it was assigned with the value '{2}'"
-            .format(property_name, type_name, value))
+        50, "Property type validation failed in '{0}': property "
+            "'{1}' type is '{2}', yet it was assigned with the "
+            "value '{3}'".format(
+                    node_name,
+                    _property_description(path, property_name),
+                    type_name,
+                    value))
 
 
 def parse_type_fields(fields, data_types):
@@ -146,10 +168,10 @@ def parse_type_fields(fields, data_types):
         val_clone = copy.deepcopy(property_schema)
         default_value = property_schema.get('default')
         if default_value:
-            undefined_property_error = 'Undefined property in default' \
-                                       ' value of type {}: {}'
-            missing_property_error = 'Property is missing in default' \
-                                     ' value of type {}: {}'
+            undefined_property_error = 'Undefined property {1} in default' \
+                                       ' value of type {0}'
+            missing_property_error = 'Property {1} is missing in default' \
+                                     ' value of type {0}'
             default_value = _parse_value(
                 value=default_value,
                 type_name=type_name,
@@ -157,7 +179,8 @@ def parse_type_fields(fields, data_types):
                 data_types=data_types,
                 undefined_property_error_message=undefined_property_error,
                 missing_property_error_message=missing_property_error,
-                node_name=type_name)
+                node_name=type_name,
+                path=[])
             val_clone['default'] = default_value
         result[property_name] = val_clone
     return result
