@@ -21,7 +21,7 @@ import yaml.parser
 
 from dsl_parser import yaml_loader
 from dsl_parser import functions
-from dsl_parser import constants
+from dsl_parser.elements import USER_PRIMITIVE_TYPES
 from dsl_parser.exceptions import (DSLParsingLogicException,
                                    DSLParsingFormatException)
 
@@ -161,7 +161,7 @@ def parse_type_fields(fields, data_types):
         type_name = property_schema.get('type')
         if type_name is not None and \
                 type_name not in data_types and \
-                type_name not in constants.PRIMITIVE_TYPES:
+                type_name not in USER_PRIMITIVE_TYPES:
             raise DSLParsingFormatException(
                 1,
                 "Illegal type name '{0}'".format(type_name))

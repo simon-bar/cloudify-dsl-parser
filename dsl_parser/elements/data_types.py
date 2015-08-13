@@ -16,7 +16,9 @@
 from dsl_parser import constants
 from dsl_parser import exceptions
 from dsl_parser import utils
-from dsl_parser.elements import properties_utils
+from dsl_parser.elements import (
+    properties_utils,
+    USER_PRIMITIVE_TYPES)
 from dsl_parser.framework.elements import (
     Element,
     Dict,
@@ -68,7 +70,7 @@ class DataTypes(Element):
 
         types_internal = {}
         for type_name, type_schema in datatypes.iteritems():
-            if type_name in constants.PRIMITIVE_TYPES:
+            if type_name in USER_PRIMITIVE_TYPES:
                 raise exceptions.DSLParsingFormatException(
                     1,
                     "Illegal type name '{0}' - it is primitive "
@@ -108,7 +110,7 @@ class DataTypes(Element):
                     constants.PROPERTIES].iteritems():
                 property_type = prop.get(_TYPE)
                 if (property_type
-                        and property_type not in constants.PRIMITIVE_TYPES):
+                        and property_type not in USER_PRIMITIVE_TYPES):
                     err_msg = 'Property {0} in type {1} ' \
                               'has unknown type {2}'.format(prop_name,
                                                             type_name,
