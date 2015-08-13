@@ -187,3 +187,8 @@ class UnknownSchema(object):
 class UnknownElement(Element):
 
     schema = UnknownSchema()
+
+
+class StringElement(Element):
+
+    schema = Leaf(type=str)

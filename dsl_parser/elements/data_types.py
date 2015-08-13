@@ -17,21 +17,22 @@ from dsl_parser import constants
 from dsl_parser import exceptions
 from dsl_parser import utils
 from dsl_parser.elements import properties_utils
-from dsl_parser.framework.elements import Element, Dict, Leaf, DictElement
+from dsl_parser.framework.elements import (
+    Element,
+    Dict,
+    DictElement,
+    StringElement)
 from dsl_parser.framework.parser import parse
 from dsl_parser.framework.requirements import Value
 
 
 _DERIVED_FROM = 'derived_from'
-
-
-class StringElement(Element):
-    schema = Leaf(type=str)
+_TYPE = 'type'
 
 
 class DataType(Element):
     schema = {
-        'properties': properties_utils.UnsafeSchema,
+        constants.PROPERTIES: properties_utils.UnsafeSchema,
         'description': StringElement,
         _DERIVED_FROM: StringElement,
         'version': StringElement
@@ -39,8 +40,8 @@ class DataType(Element):
 
     def parse(self):
         result = self.build_dict_result()
-        if 'properties' not in result:
-            result['properties'] = {}
+        if constants.PROPERTIES not in result:
+            result[constants.PROPERTIES] = {}
         return result
 
 
@@ -58,14 +59,12 @@ def _add_requirement_if_exists(current_type,
 
 class DataTypes(Element):
     schema = Dict(type=DataType)
-    provides = ['data_types']
 
     def parse(self):
         datatypes = self.build_dict_result()
 
         class DataTypesInternal(DictElement):
             schema = {}
-            requires = {}
 
         types_internal = {}
         for type_name, type_schema in datatypes.iteritems():
@@ -77,19 +76,18 @@ class DataTypes(Element):
 
             class DataTypeInternal(DataType):
                 requires = {}
-                _type_name = type_name
 
                 def parse(self, **data_types):
                     schema = self.build_dict_result()
-                    schema['properties'] = utils.parse_type_fields(
-                        schema['properties'],
+                    schema[constants.PROPERTIES] = utils.parse_type_fields(
+                        schema[constants.PROPERTIES],
                         data_types)
                     parent_type = schema.get(_DERIVED_FROM)
                     if parent_type:
-                        schema['properties'] = utils.merge_sub_dicts(
+                        schema[constants.PROPERTIES] = utils.merge_sub_dicts(
                             overriding_dict=schema,
                             overridden_dict=data_types[parent_type],
-                            sub_dict_key='properties'
+                            sub_dict_key=constants.PROPERTIES
                         )
                     return schema
 
@@ -97,23 +95,26 @@ class DataTypes(Element):
             DataTypesInternal.schema[type_name] = DataTypeInternal
 
         for type_name, type_schema in datatypes.iteritems():
-            if type_schema.get(_DERIVED_FROM):
+            parent_type = type_schema.get(_DERIVED_FROM)
+            if parent_type:
                 err_msg = 'Type {0} derives from unknown type {1}'.format(
                     type_name,
-                    type_schema[_DERIVED_FROM])
+                    parent_type)
                 _add_requirement_if_exists(type_name,
-                                           type_schema['derived_from'],
+                                           parent_type,
                                            types_internal,
                                            err_msg)
-            for prop_name, prop in type_schema['properties'].iteritems():
-                if ('type' in prop
-                        and prop['type'] not in constants.PRIMITIVE_TYPES):
+            for prop_name, prop in type_schema[
+                    constants.PROPERTIES].iteritems():
+                property_type = prop.get(_TYPE)
+                if (property_type
+                        and property_type not in constants.PRIMITIVE_TYPES):
                     err_msg = 'Property {0} in type {1} ' \
-                              'has unkown type {2}'.format(prop_name,
-                                                           type_name,
-                                                           prop['type'])
+                              'has unknown type {2}'.format(prop_name,
+                                                            type_name,
+                                                            property_type)
                     _add_requirement_if_exists(type_name,
-                                               prop['type'],
+                                               property_type,
                                                types_internal,
                                                err_msg)
 
