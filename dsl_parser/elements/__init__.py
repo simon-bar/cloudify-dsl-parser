@@ -15,4 +15,3 @@
 
 
 PRIMITIVE_TYPES = (list, bool, int, float, long, basestring, dict)
-USER_PRIMITIVE_TYPES = ['string', 'integer', 'float', 'boolean']

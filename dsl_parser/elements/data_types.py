@@ -46,14 +46,14 @@ class SchemaPropertyType(Element):
 
     def validate(self, data_type, component_types):
         if self.initial_value and self.initial_value not in \
-                elements.USER_PRIMITIVE_TYPES and not data_type:
+                constants.USER_PRIMITIVE_TYPES and not data_type:
             raise exceptions.DSLParsingLogicException(
                 exceptions.ERROR_UNKNOWN_TYPE,
                 "Illegal type name '{0}'".format(self.initial_value))
 
     def calculate_provided(self, data_type, component_types):
         component_types = component_types or {}
-        if self.value and self.value not in elements.USER_PRIMITIVE_TYPES:
+        if self.value and self.value not in constants.USER_PRIMITIVE_TYPES:
             component_types = copy.copy(component_types)
             component_types[self.value] = data_type
         return {'component_types': component_types}

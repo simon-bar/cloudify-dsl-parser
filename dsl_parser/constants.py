@@ -64,3 +64,5 @@ NODE_INSTANCES = 'node_instances'
 IMPORT_RESOLVER_KEY = 'import_resolver'
 RESOLVER_IMPLEMENTATION_KEY = 'implementation'
 RESLOVER_PARAMETERS_KEY = 'parameters'
+
+USER_PRIMITIVE_TYPES = ['string', 'integer', 'float', 'boolean']
