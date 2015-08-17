@@ -42,6 +42,7 @@ class SchemaPropertyType(Element):
 
     # requires will be modified later.
     requires = {}
+
     provides = ['component_types']
 
     def validate(self, data_type, component_types):
@@ -60,7 +61,9 @@ class SchemaPropertyType(Element):
 
 
 class SchemaPropertyDefault(Element):
+
     schema = Leaf(type=elements.PRIMITIVE_TYPES)
+
     requires = {
         SchemaPropertyType: [
             Value('type_name', required=False, predicate=sibling_predicate),
@@ -177,7 +180,9 @@ class DataType(types.Type):
 
 
 class DataTypes(types.Types):
+
     schema = Dict(type=DataType)
+
     requires = {
         _version.ToscaDefinitionsVersion: ['version']
     }
