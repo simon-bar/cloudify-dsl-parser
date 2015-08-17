@@ -84,12 +84,11 @@ class SchemaPropertyDefault(Element):
         return utils.parse_value(
             self.initial_value,
             type_name,
-            prop_name,
             component_types,
             undefined_property_error_message=undefined_property_error,
             missing_property_error_message=missing_property_error,
             node_name=current_type,
-            path=[]
+            path=[prop_name]
         )
 
 

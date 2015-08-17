@@ -41,10 +41,13 @@ def flatten_schema(schema):
     return flattened_schema_props
 
 
-def _property_description(path, name):
+def _property_description(path, name=None):
     if not path:
         return name
-    return '{0}.{1}'.format('.'.join(path), name)
+    if name is not None:
+        path = copy.copy(path)
+        path.append(name)
+    return '.'.join(path)
 
 
 def merge_schema_and_instance_properties(
@@ -85,15 +88,16 @@ def merge_schema_and_instance_properties(
                     _property_description(path, key)))
             ex.property = key
             raise ex
+        prop_path = copy.copy(path)
+        prop_path.append(key)
         result[key] = parse_value(
             value=value,
             type_name=schema_properties.get(key).get('type'),
-            property_name=key,
             data_types=data_types,
             undefined_property_error_message=undefined_property_error_message,
             missing_property_error_message=missing_property_error_message,
             node_name=node_name,
-            path=path)
+            path=prop_path)
 
     return result
 
@@ -101,7 +105,6 @@ def merge_schema_and_instance_properties(
 def parse_value(
         value,
         type_name,
-        property_name,
         data_types,
         undefined_property_error_message,
         missing_property_error_message,
@@ -129,8 +132,6 @@ def parse_value(
         if isinstance(value, dict):
             data_schema = data_types[type_name]['properties']
             undef_msg = undefined_property_error_message
-            path = copy.copy(path)
-            path.append(property_name)
             return merge_schema_and_instance_properties(
                 value,
                 data_schema,
@@ -143,7 +144,7 @@ def parse_value(
         raise RuntimeError(
             "Unexpected type defined in property schema for property '{0}'"
             " - unknown type is '{1}'".format(
-                _property_description(path, property_name),
+                _property_description(path),
                 type_name))
 
     raise DSLParsingLogicException(
@@ -151,7 +152,7 @@ def parse_value(
             "'{1}' type is '{2}', yet it was assigned with the "
             "value '{3}'".format(
                 node_name,
-                _property_description(path, property_name),
+                _property_description(path),
                 type_name,
                 value))
 
