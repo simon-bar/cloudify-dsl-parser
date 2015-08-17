@@ -18,7 +18,7 @@ import copy
 from dsl_parser import (constants,
                         exceptions,
                         utils)
-from dsl_parser.elements import (properties,
+from dsl_parser.elements import (data_types,
                                  version as _version)
 from dsl_parser.framework.elements import (DictElement,
                                            Element,
@@ -131,7 +131,7 @@ class NodeTypeOperation(Operation):
         Leaf(type=str),
         {
             'implementation': OperationImplementation,
-            'inputs': properties.Schema,
+            'inputs': data_types.Schema,
             'executor': OperationExecutor,
             'max_retries': OperationMaxRetries,
             'retry_interval': OperationRetryInterval,

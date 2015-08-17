@@ -17,7 +17,7 @@ from dsl_parser import (version as _version,
                         exceptions)
 from dsl_parser import elements
 from dsl_parser.elements import (
-    properties,
+    data_types,
     version as element_version)
 from dsl_parser.framework.elements import (DictElement,
                                            Element,
@@ -50,7 +50,7 @@ class Outputs(DictElement):
     schema = Dict(type=Output)
 
 
-class Inputs(properties.Schema):
+class Inputs(data_types.Schema):
     pass
 
 
