@@ -96,7 +96,7 @@ data_types:
             yaml, 106, DSLParsingLogicException)
 
     def test_unknown_type_in_datatype(self):
-        yaml = self.MINIMAL_BLUEPRINT + """
+        yaml = self.BASIC_VERSION_SECTION_DSL_1_2 + self.MINIMAL_BLUEPRINT + """
 data_types:
     pair_type:
         properties:
@@ -108,7 +108,7 @@ data_types:
             yaml, exceptions.ERROR_UNKNOWN_TYPE, DSLParsingLogicException)
 
     def test_nested_validation(self):
-        yaml = """
+        yaml = self.BASIC_VERSION_SECTION_DSL_1_2 + """
 node_templates:
     n_template:
         type: n_type
@@ -176,12 +176,12 @@ data_types:
                 type: string
                 default: /home/
 """
-        parsed = prepare_deployment_plan(self.parse(yaml))
+        parsed = prepare_deployment_plan(self.parse_1_2(yaml))
         vm = self.get_node_by_name(parsed, 'vm')
         self.assertEqual('ubuntu', vm['properties']['agent_name'])
 
     def test_derives(self):
-        yaml = """
+        yaml = self.BASIC_VERSION_SECTION_DSL_1_2 + """
 node_types:
     vm_type:
         properties:
@@ -227,7 +227,7 @@ data_types:
         self.assertEqual('/home/ubuntu/id_rsa', vm['properties']['agent_key'])
 
     def test_nested_type_error(self):
-        yaml = """
+        yaml = self.BASIC_VERSION_SECTION_DSL_1_2 + """
 node_templates:
     node:
         type: node_type
@@ -318,7 +318,7 @@ data_types:
         self.parse_1_2(yaml)
 
     def test_nested_type_error_in_default(self):
-        yaml = self.MINIMAL_BLUEPRINT + """
+        yaml = self.BASIC_VERSION_SECTION_DSL_1_2 + self.MINIMAL_BLUEPRINT + """
 data_types:
     a:
         properties:
@@ -346,7 +346,7 @@ data_types:
             exceptions.ERROR_VALUE_DOES_NOT_MATCH_TYPE)
 
     def test_nested_merging(self):
-        yaml = """
+        yaml = self.BASIC_VERSION_SECTION_DSL_1_2 + """
 node_templates:
     node:
         type: node_type
@@ -391,3 +391,15 @@ data_types:
             }
         }
         self.assertEqual(node['properties'], expected)
+
+    def test_version_check(self):
+        yaml = self.BASIC_VERSION_SECTION_DSL_1_1 + self.MINIMAL_BLUEPRINT + """
+data_types:
+    a:
+        properties:
+            i:
+                type: integer
+"""
+        self._assert_dsl_parsing_exception_error_code(
+            yaml,
+            exceptions.ERROR_FEATURE_NOT_SUPPORTED_IN_THIS_VERSION)

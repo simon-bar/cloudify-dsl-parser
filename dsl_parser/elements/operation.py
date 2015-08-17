@@ -19,7 +19,7 @@ from dsl_parser import (constants,
                         exceptions,
                         utils)
 from dsl_parser.elements import (properties,
-                                 misc)
+                                 version as _version)
 from dsl_parser.framework.elements import (DictElement,
                                            Element,
                                            Leaf,
@@ -68,7 +68,7 @@ class OperationMaxRetries(Element):
 
     schema = Leaf(type=int)
     requires = {
-        misc.ToscaDefinitionsVersion: ['version']
+        _version.ToscaDefinitionsVersion: ['version']
     }
 
     def validate(self, version):
@@ -92,7 +92,7 @@ class OperationRetryInterval(Element):
 
     schema = Leaf(type=(int, float, long))
     requires = {
-        misc.ToscaDefinitionsVersion: ['version']
+        _version.ToscaDefinitionsVersion: ['version']
     }
 
     def validate(self, version):

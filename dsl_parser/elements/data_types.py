@@ -18,7 +18,7 @@ from dsl_parser import constants
 from dsl_parser import elements
 from dsl_parser import exceptions
 from dsl_parser import utils
-from dsl_parser.elements import types
+from dsl_parser.elements import types, version as _version
 from dsl_parser.framework.elements import (
     Element,
     Dict,
@@ -178,6 +178,12 @@ class DataType(types.Type):
 
 class DataTypes(types.Types):
     schema = Dict(type=DataType)
+    requires = {
+        _version.ToscaDefinitionsVersion: ['version']
+    }
+
+    def validate(self, version):
+        self.validate_version(version, (1, 2), 'data_types section')
 
 
 # source: element describing data_type name
