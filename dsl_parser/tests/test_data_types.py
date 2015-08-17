@@ -256,3 +256,17 @@ data_types:
 """
         ex = self._assert_dsl_parsing_exception_error_code(yaml, 50)
         self.assertIn('a.b.c.d', ex.message)
+
+    def test_unknown_parent(self):
+        yaml = self.MINIMAL_BLUEPRINT + """
+data_types:
+    a:
+        derived_from: b
+        properties:
+            p:
+                type: integer
+"""
+        self._assert_dsl_parsing_exception_error_code(
+            yaml,
+            exceptions.ERROR_UNKNOWN_TYPE,
+            DSLParsingLogicException)

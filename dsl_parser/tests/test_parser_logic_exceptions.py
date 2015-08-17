@@ -63,7 +63,7 @@ node_types:
         derived_from: "non_existing_type_parent"
         """
         self._assert_dsl_parsing_exception_error_code(
-            yaml, 14, DSLParsingLogicException)
+            yaml, exceptions.ERROR_UNKNOWN_TYPE, DSLParsingLogicException)
 
     def test_import_bad_path(self):
         yaml = """
