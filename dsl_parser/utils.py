@@ -21,6 +21,7 @@ import yaml.parser
 
 from dsl_parser import yaml_loader
 from dsl_parser import functions
+from dsl_parser import exceptions
 from dsl_parser.exceptions import (DSLParsingLogicException,
                                    DSLParsingFormatException)
 
@@ -148,13 +149,14 @@ def parse_value(
                 type_name))
 
     raise DSLParsingLogicException(
-        50, "Property type validation failed in '{0}': property "
-            "'{1}' type is '{2}', yet it was assigned with the "
-            "value '{3}'".format(
-                node_name,
-                _property_description(path),
-                type_name,
-                value))
+        exceptions.ERROR_VALUE_DOES_NOT_MATCH_TYPE,
+        "Property type validation failed in '{0}': property "
+        "'{1}' type is '{2}', yet it was assigned with the "
+        "value '{3}'".format(
+            node_name,
+            _property_description(path),
+            type_name,
+            value))
 
 
 def load_yaml(raw_yaml, error_message, filename=None):

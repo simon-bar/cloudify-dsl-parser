@@ -565,7 +565,9 @@ node_types:
         """.format(prop_val, prop_type)
 
             self._assert_dsl_parsing_exception_error_code(
-                yaml, 50, DSLParsingLogicException)
+                yaml,
+                exceptions.ERROR_VALUE_DOES_NOT_MATCH_TYPE,
+                DSLParsingLogicException)
 
         test_type_with_value('boolean', 'not-a-boolean')
         test_type_with_value('boolean', '"True"')

@@ -138,7 +138,9 @@ data_types:
             second:
                 type: pair_type
 """
-        self._assert_dsl_parsing_exception_error_code(yaml, 50)
+        self._assert_dsl_parsing_exception_error_code(
+            yaml,
+            exceptions.ERROR_VALUE_DOES_NOT_MATCH_TYPE)
 
     def test_nested_defaults(self):
         yaml = """
@@ -254,7 +256,9 @@ data_types:
                 type: integer
 
 """
-        ex = self._assert_dsl_parsing_exception_error_code(yaml, 50)
+        ex = self._assert_dsl_parsing_exception_error_code(
+            yaml,
+            exceptions.ERROR_VALUE_DOES_NOT_MATCH_TYPE)
         self.assertIn('a.b.c.d', ex.message)
 
     def test_unknown_parent(self):
@@ -283,3 +287,107 @@ data_types:
             yaml,
             exceptions.ERROR_INVALID_TYPE_NAME,
             DSLParsingLogicException)
+
+    def test_subtype_override_field_type(self):
+        yaml = """
+node_templates:
+    node:
+        type: node_type
+        properties:
+            b:
+                i: 'redefined from int'
+                s: 'to make sure that b really derives from a'
+node_types:
+    node_type:
+        properties:
+            b:
+                type: b
+data_types:
+    a:
+        properties:
+            i:
+                type: integer
+            s:
+                type: string
+    b:
+        derived_from: a
+        properties:
+            i:
+                type: string
+"""
+        self.parse_1_2(yaml)
+
+    def test_nested_type_error_in_default(self):
+        yaml = self.MINIMAL_BLUEPRINT + """
+data_types:
+    a:
+        properties:
+            b:
+                type: b
+                default:
+                    c:
+                        d:
+                            e: 'should be int'
+    b:
+        properties:
+            c:
+                type: c
+    c:
+        properties:
+            d:
+                type: d
+    d:
+        properties:
+            e:
+                type: integer
+"""
+        self._assert_dsl_parsing_exception_error_code(
+            yaml,
+            exceptions.ERROR_VALUE_DOES_NOT_MATCH_TYPE)
+
+    def test_nested_merging(self):
+        yaml = """
+node_templates:
+    node:
+        type: node_type
+        properties:
+            b: {}
+node_types:
+    node_type:
+        properties:
+            b:
+                type: b
+                default:
+                    i: 'it will be ignored'
+            bb:
+                type: b
+                default:
+                    i: 'it will be used'
+data_types:
+    a:
+        properties:
+            i:
+                type: integer
+            s:
+                type: string
+                default: 's string'
+    b:
+        derived_from: a
+        properties:
+            i:
+                type: string
+                default: 'i string'
+"""
+        parsed = prepare_deployment_plan(self.parse(yaml))
+        node = self.get_node_by_name(parsed, 'node')
+        expected = {
+            'b': {
+                'i': 'i string',
+                's': 's string'
+            },
+            'bb': {
+                'i': 'it will be used',
+                's': 's string'
+            }
+        }
+        self.assertEqual(node['properties'], expected)
