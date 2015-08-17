@@ -21,7 +21,6 @@ import yaml.parser
 
 from dsl_parser import yaml_loader
 from dsl_parser import functions
-from dsl_parser.elements import USER_PRIMITIVE_TYPES
 from dsl_parser.exceptions import (DSLParsingLogicException,
                                    DSLParsingFormatException)
 
@@ -43,6 +42,8 @@ def flatten_schema(schema):
 
 
 def _property_description(path, name):
+    if not path:
+        return name
     return '{0}.{1}'.format('.'.join(path), name)
 
 
@@ -84,7 +85,7 @@ def merge_schema_and_instance_properties(
                     _property_description(path, key)))
             ex.property = key
             raise ex
-        result[key] = _parse_value(
+        result[key] = parse_value(
             value=value,
             type_name=schema_properties.get(key).get('type'),
             property_name=key,
@@ -97,7 +98,7 @@ def merge_schema_and_instance_properties(
     return result
 
 
-def _parse_value(
+def parse_value(
         value,
         type_name,
         property_name,
@@ -153,37 +154,6 @@ def _parse_value(
                 _property_description(path, property_name),
                 type_name,
                 value))
-
-
-def parse_type_fields(fields, data_types):
-    result = {}
-    for property_name, property_schema in fields.iteritems():
-        type_name = property_schema.get('type')
-        if type_name is not None and \
-                type_name not in data_types and \
-                type_name not in USER_PRIMITIVE_TYPES:
-            raise DSLParsingFormatException(
-                1,
-                "Illegal type name '{0}'".format(type_name))
-        val_clone = copy.deepcopy(property_schema)
-        default_value = property_schema.get('default')
-        if default_value:
-            undefined_property_error = 'Undefined property {1} in default' \
-                                       ' value of type {0}'
-            missing_property_error = 'Property {1} is missing in default' \
-                                     ' value of type {0}'
-            default_value = _parse_value(
-                value=default_value,
-                type_name=type_name,
-                property_name=property_name,
-                data_types=data_types,
-                undefined_property_error_message=undefined_property_error,
-                missing_property_error_message=missing_property_error,
-                node_name=type_name,
-                path=[])
-            val_clone['default'] = default_value
-        result[property_name] = val_clone
-    return result
 
 
 def load_yaml(raw_yaml, error_message, filename=None):

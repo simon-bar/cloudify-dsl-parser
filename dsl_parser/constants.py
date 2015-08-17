@@ -31,6 +31,7 @@ POLICY_TYPES = 'policy_types'
 GROUPS = 'groups'
 INPUTS = 'inputs'
 OUTPUTS = 'outputs'
+DERIVED_FROM = 'derived_from'
 
 HOST_TYPE = 'cloudify.nodes.Compute'
 DEPENDS_ON_REL_TYPE = 'cloudify.relationships.depends_on'

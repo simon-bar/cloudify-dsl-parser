@@ -134,7 +134,7 @@ class Element(object):
         elements.append(str(self.name))
         return '.'.join(elements)
 
-    def _parent(self):
+    def parent(self):
         return next(self.context.ancestors_iter(self))
 
     def ancestor(self, element_type):
@@ -171,7 +171,7 @@ class Element(object):
         return list(self.context.child_elements_iter(self))
 
     def sibling(self, element_type):
-        return self._parent().child(element_type)
+        return self.parent().child(element_type)
 
 
 class DictElement(Element):

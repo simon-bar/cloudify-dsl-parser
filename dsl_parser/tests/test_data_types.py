@@ -15,10 +15,7 @@
 
 from dsl_parser.tests.abstract_test_parser import AbstractTestParser
 from dsl_parser import exceptions
-from dsl_parser.exceptions import (
-    DSLParsingElementMatchException,
-    DSLParsingLogicException
-)
+from dsl_parser.exceptions import DSLParsingLogicException
 from dsl_parser.tasks import prepare_deployment_plan
 
 
@@ -34,7 +31,7 @@ data_types:
             second: {}
 """
         self._assert_dsl_parsing_exception_error_code(
-            yaml, 39, DSLParsingElementMatchException)
+            yaml, exceptions.ERROR_UNKNOWN_TYPE, DSLParsingLogicException)
 
     def test_simple(self):
         yaml = self.MINIMAL_BLUEPRINT + """
@@ -108,7 +105,7 @@ data_types:
             second: {}
 """
         self._assert_dsl_parsing_exception_error_code(
-            yaml, 39, DSLParsingElementMatchException)
+            yaml, exceptions.ERROR_UNKNOWN_TYPE, DSLParsingLogicException)
 
     def test_nested_validation(self):
         yaml = """

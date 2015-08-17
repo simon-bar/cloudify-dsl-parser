@@ -13,16 +13,7 @@
 #    * See the License for the specific language governing permissions and
 #    * limitations under the License.
 
-from dsl_parser import utils
-from dsl_parser.elements import data_types, properties_utils
-from dsl_parser.framework.requirements import Value
+from dsl_parser.elements import data_types
 
 
-class Schema(properties_utils.UnsafeSchema):
-
-    requires = {
-        data_types.DataTypes: [Value('data_types')]
-    }
-
-    def parse(self, data_types):
-        return utils.parse_type_fields(self.initial_value or {}, data_types)
+Schema = data_types.Schema
