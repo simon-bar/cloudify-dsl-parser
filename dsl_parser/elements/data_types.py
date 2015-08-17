@@ -80,7 +80,6 @@ class SchemaPropertyDefault(Element):
         missing_property_error = 'Property {1} is missing in default' \
                                  ' value of type {0}'
         current_type = self.ancestor(Schema).parent().name
-        print str(self.initial_value)
         return utils.parse_value(
             self.initial_value,
             type_name,
@@ -138,6 +137,13 @@ class DataType(types.Type):
         super(DataType, self).__init__(*args, **kwargs)
         self._direct_component_types = None
         self.component_types = {}
+
+    def validate(self, super_type, component_types):
+        if self.name in constants.USER_PRIMITIVE_TYPES:
+            raise exceptions.DSLParsingLogicException(
+                exceptions.ERROR_INVALID_TYPE_NAME,
+                'Can\'t redefine primitive type {0}'.format(self.name)
+            )
 
     def parse(self, super_type, component_types):
         for component in component_types:

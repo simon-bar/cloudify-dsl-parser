@@ -270,3 +270,16 @@ data_types:
             yaml,
             exceptions.ERROR_UNKNOWN_TYPE,
             DSLParsingLogicException)
+
+    def test_redefine_primitive(self):
+        yaml = self.MINIMAL_BLUEPRINT + """
+data_types:
+    integer:
+        properties:
+            p:
+                type: string
+"""
+        self._assert_dsl_parsing_exception_error_code(
+            yaml,
+            exceptions.ERROR_INVALID_TYPE_NAME,
+            DSLParsingLogicException)
