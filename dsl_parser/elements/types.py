@@ -63,6 +63,11 @@ class TypeDerivedFrom(DerivedFrom):
     descriptor = 'type'
 
 
+class DataTypeDerivedFrom(DerivedFrom):
+
+    descriptor = 'data type'
+
+
 def derived_from_predicate(source, target):
     try:
         derived_from = source.child(DerivedFrom).initial_value

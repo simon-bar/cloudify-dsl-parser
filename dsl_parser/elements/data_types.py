@@ -12,7 +12,6 @@
 #    * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    * See the License for the specific language governing permissions and
 #    * limitations under the License.
-import copy
 
 from dsl_parser import constants
 from dsl_parser import elements
@@ -53,10 +52,6 @@ class SchemaPropertyType(Element):
                 "Illegal type name '{0}'".format(self.initial_value))
 
     def calculate_provided(self, data_type, component_types):
-        component_types = component_types or {}
-        if self.value and self.value not in constants.USER_PRIMITIVE_TYPES:
-            component_types = copy.copy(component_types)
-            component_types[self.value] = data_type
         return {'component_types': component_types}
 
 
@@ -117,7 +112,7 @@ class DataType(types.Type):
     schema = {
         constants.PROPERTIES: Schema,
         'description': StringElement,
-        constants.DERIVED_FROM: types.DerivedFrom,
+        constants.DERIVED_FROM: types.DataTypeDerivedFrom,
         'version': StringElement
     }
 
