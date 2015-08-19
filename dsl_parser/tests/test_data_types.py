@@ -403,3 +403,23 @@ data_types:
         self._assert_dsl_parsing_exception_error_code(
             yaml,
             exceptions.ERROR_FEATURE_NOT_SUPPORTED_IN_THIS_VERSION)
+
+    def test_implicit_default_value(self):
+        yaml = """
+data_types:
+    data1:
+        properties:
+            inner:
+                default: inner_default
+
+node_types:
+    type1:
+        properties:
+            prop1:
+                type: data1
+
+node_templates:
+    node1:
+        type: type1
+"""
+        self.parse_1_2(yaml)

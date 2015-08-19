@@ -70,7 +70,12 @@ class SchemaPropertyDefault(Element):
 
     def parse(self, type_name, component_types):
         if self.initial_value is None:
-            return
+            if type_name is not None \
+                    and type_name not in constants.USER_PRIMITIVE_TYPES \
+                    and 'default' in component_types[type_name]:
+                return component_types[type_name]['default']
+            else:
+                return None
         component_types = component_types or {}
         prop_name = self.ancestor(SchemaProperty).name
         undefined_property_error = 'Undefined property {1} in default' \
@@ -155,6 +160,15 @@ class DataType(types.Type):
                 overriding_dict=result,
                 sub_dict_key=constants.PROPERTIES
             )
+        default_value = {}
+        for prop, val in result[constants.PROPERTIES].iteritems():
+            if 'default' in val:
+                default_value[prop] = val['default']
+            else:
+                default_value = None
+                break
+        if default_value is not None:
+            result['default'] = default_value
         self.component_types[self.name] = result
         return result
 
